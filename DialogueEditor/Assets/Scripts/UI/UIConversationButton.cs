@@ -162,15 +162,17 @@ namespace DialogueEditor
             }
         }
 
-        public void SetAlpha(float a)
-        {
+        public void SetAlpha(float a) {
             Color c_image = OptionBackgroundImage.color;
-            Color c_text = TextMesh.color;
-            c_image.a = a;
-            c_text.a = a;
+            c_image.a = a;               // меняем только фон
             OptionBackgroundImage.color = c_image;
-            TextMesh.color = c_text;
+
+            // Текст оставляем как есть, без изменения альфы
+            // Color c_text = TextMesh.color;
+            // c_text.a = a;  // ← удалить эту строку
+            // TextMesh.color = c_text;
         }
+
 
         public void SetupButton(eButtonType buttonType, ConversationNode node, TMPro.TMP_FontAsset continueFont = null, TMPro.TMP_FontAsset endFont = null)
         {

@@ -270,7 +270,7 @@ namespace DialogueEditor
                     m_selectedOption = null;
                     break;
                 case eState.TransitioningDialogueBoxOn:
-                    SetColorAlpha(DialogueBackground, 1);
+                    SetColorAlpha(DialogueBackground, 0.5f);
                     SetColorAlpha(NpcIcon, 1);
                     SetColorAlpha(NameText, 1);
                     break;
@@ -333,7 +333,7 @@ namespace DialogueEditor
                 return;
             }
 
-            SetColorAlpha(DialogueBackground, t);
+            SetColorAlpha(DialogueBackground, t * 0.5f);
             SetColorAlpha(NpcIcon, t);
             SetColorAlpha(NameText, t);
         }
@@ -373,7 +373,7 @@ namespace DialogueEditor
             }
 
             for (int i = 0; i < m_uiOptions.Count; i++)
-                m_uiOptions[i].SetAlpha(t);
+                m_uiOptions[i].SetAlpha(t * 0.5f);
         }
 
         private void Idle_Update()
@@ -427,7 +427,7 @@ namespace DialogueEditor
 
 
             for (int i = 0; i < m_uiOptions.Count; i++)
-                m_uiOptions[i].SetAlpha(1 - t);
+                m_uiOptions[i].SetAlpha((1 - t) * 0.5f);
 
             SetColorAlpha(DialogueText, 1 - t);
         }
@@ -443,7 +443,7 @@ namespace DialogueEditor
                 return;
             }
 
-            SetColorAlpha(DialogueBackground, 1 - t);
+            SetColorAlpha(DialogueBackground, (1 - t) * 0.5f);
             SetColorAlpha(NpcIcon, 1 - t);
             SetColorAlpha(NameText, 1 - t);
         }
