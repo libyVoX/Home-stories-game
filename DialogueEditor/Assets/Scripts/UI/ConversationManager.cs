@@ -484,10 +484,6 @@ namespace DialogueEditor
             {
                 DialogueText.font = speech.TMPFont;
             }
-            else
-            {
-                DialogueText.font = null;
-            }
 
             // Set name
             NameText.text = speech.Name;

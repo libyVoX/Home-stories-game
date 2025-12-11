@@ -6,6 +6,7 @@ namespace DialogueEditor
     public class UIConversationButton : MonoBehaviour
     {
         [SerializeField] private RectTransform visualRect;
+
         public enum eHoverState
         {
             idleOff,
@@ -21,32 +22,31 @@ namespace DialogueEditor
             End
         }
 
-        // Getters
         public eButtonType ButtonType { get { return m_buttonType; } }
 
-        // UI Elements
         [SerializeField] private TMPro.TextMeshProUGUI TextMesh = null;
         [SerializeField] private Image OptionBackgroundImage = null;
+
         private RectTransform m_rect;
 
         // Node data
         private eButtonType m_buttonType;
-        private ConversationNode m_node;    
+        private ConversationNode m_node;
 
-        // Hovering 
+        // Hover
         private float m_hoverT = 0.0f;
         private eHoverState m_hoverState;
         private bool Hovering { get { return (m_hoverState == eHoverState.animatingOn || m_hoverState == eHoverState.animatingOff); } }
         private Vector3 BigSize { get { return Vector3.one * 1.2f; } }
 
+        // Сохраняем дефолтный шрифт из инспектора
+        private TMPro.TMP_FontAsset defaultFont;
 
-        //--------------------------------------
-        // MonoBehaviour
-        //--------------------------------------
 
         private void Awake()
         {
             m_rect = GetComponent<RectTransform>();
+            defaultFont = TextMesh.font;        // <-- главное изменение
         }
 
         private void Update()
@@ -61,15 +61,16 @@ namespace DialogueEditor
                     normalised = 1;
                     done = true;
                 }
-                Vector3 size = Vector3.one;
+
                 float ease = EaseOutQuart(normalised);
-                
+                Vector3 size = Vector3.one;
 
                 switch (m_hoverState)
                 {
                     case eHoverState.animatingOn:
                         size = Vector3.Lerp(Vector3.one, BigSize, ease);
                         break;
+
                     case eHoverState.animatingOff:
                         size = Vector3.Lerp(BigSize, Vector3.one, ease);
                         break;
@@ -79,16 +80,17 @@ namespace DialogueEditor
 
                 if (done)
                 {
-                    m_hoverState = (m_hoverState == eHoverState.animatingOn) ? eHoverState.idleOn : eHoverState.idleOff;
+                    m_hoverState =
+                        (m_hoverState == eHoverState.animatingOn)
+                        ? eHoverState.idleOn
+                        : eHoverState.idleOff;
                 }
             }
         }
 
 
-
-
         //--------------------------------------
-        // Input Events
+        // Input
         //--------------------------------------
 
         public void OnHover(bool hovering)
@@ -96,19 +98,14 @@ namespace DialogueEditor
             if (!ConversationManager.Instance.AllowMouseInteraction) { return; }
 
             if (hovering)
-            {
                 ConversationManager.Instance.AlertHover(this);
-            }
             else
-            {
                 ConversationManager.Instance.AlertHover(null);
-            }
         }
 
         public void OnClick()
         {
             if (!ConversationManager.Instance.AllowMouseInteraction) { return; }
-
             DoClickBehaviour();
         }
 
@@ -118,63 +115,53 @@ namespace DialogueEditor
         }
 
 
-
-
         //--------------------------------------
-        // Public calls
+        // Hover control
         //--------------------------------------
 
         public void SetHovering(bool selected)
         {
-            if (selected && (m_hoverState == eHoverState.animatingOn || m_hoverState == eHoverState.idleOn)) { return; }
-            if (!selected && (m_hoverState == eHoverState.animatingOff || m_hoverState == eHoverState.idleOff)) { return; }
+            if (selected && (m_hoverState == eHoverState.animatingOn || m_hoverState == eHoverState.idleOn)) return;
+            if (!selected && (m_hoverState == eHoverState.animatingOff || m_hoverState == eHoverState.idleOff)) return;
 
-            if (selected)
-                m_hoverState = eHoverState.animatingOn;
-            else
-                m_hoverState = eHoverState.animatingOff;
+            m_hoverState = selected ? eHoverState.animatingOn : eHoverState.animatingOff;
             m_hoverT = 0f;
         }
+
+
+        //--------------------------------------
+        // UI Setup
+        //--------------------------------------
 
         public void SetImage(Sprite sprite, bool sliced)
         {
             if (sprite != null)
             {
                 OptionBackgroundImage.sprite = sprite;
-
-                if (sliced)
-                    OptionBackgroundImage.type = Image.Type.Sliced;
-                else
-                    OptionBackgroundImage.type = Image.Type.Simple;
+                OptionBackgroundImage.type = sliced ? Image.Type.Sliced : Image.Type.Simple;
             }
         }
 
         public void InitButton(OptionNode option)
         {
-            // Set font
+            // ЕСЛИ у ноды есть шрифт — используем
             if (option.TMPFont != null)
-            {
                 TextMesh.font = option.TMPFont;
-            }
-            else
-            {
-                TextMesh.font = null;
-            }
+
+            // ИНАЧЕ оставляем дефолтный (НЕ трогаем!)
         }
 
-        public void SetAlpha(float a) {
+        public void SetAlpha(float a)
+        {
             Color c_image = OptionBackgroundImage.color;
-            c_image.a = a;               // меняем только фон
+            c_image.a = a;
             OptionBackgroundImage.color = c_image;
-
-            // Текст оставляем как есть, без изменения альфы
-            // Color c_text = TextMesh.color;
-            // c_text.a = a;  // ← удалить эту строку
-            // TextMesh.color = c_text;
         }
 
 
-        public void SetupButton(eButtonType buttonType, ConversationNode node, TMPro.TMP_FontAsset continueFont = null, TMPro.TMP_FontAsset endFont = null)
+        public void SetupButton(eButtonType buttonType, ConversationNode node,
+            TMPro.TMP_FontAsset continueFont = null,
+            TMPro.TMP_FontAsset endFont = null)
         {
             m_buttonType = buttonType;
             m_node = node;
@@ -182,33 +169,28 @@ namespace DialogueEditor
             switch (m_buttonType)
             {
                 case eButtonType.Option:
-                    {
-                        TextMesh.text = node.Text;
+                    TextMesh.text = node.Text;
+                    if (node.TMPFont != null)
                         TextMesh.font = node.TMPFont;
-                    }
+                    else
+                        TextMesh.font = defaultFont;  // <-- сохраняем дефолт
                     break;
 
                 case eButtonType.Speech:
-                    {
-                        TextMesh.text = "Продолжить";
-                        TextMesh.font = continueFont;
-                    }
+                    TextMesh.text = "Продолжить";
+                    TextMesh.font = continueFont != null ? continueFont : defaultFont;
                     break;
 
                 case eButtonType.End:
-                    {
-                        TextMesh.text = "Закончить";
-                        TextMesh.font = endFont;
-                    }
+                    TextMesh.text = "Закончить";
+                    TextMesh.font = endFont != null ? endFont : defaultFont;
                     break;
             }
         }
 
 
-
-
         //--------------------------------------
-        // Private logic
+        // Logic
         //--------------------------------------
 
         private void DoClickBehaviour()
@@ -228,8 +210,6 @@ namespace DialogueEditor
                     break;
             }
         }
-
-
 
 
         //--------------------------------------
