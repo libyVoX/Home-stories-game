@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using DialogueEditor;
+using UnityEngine.SceneManagement;
 
 public class Story1Scripts : MonoBehaviour
 {
@@ -116,6 +117,10 @@ public class Story1Scripts : MonoBehaviour
     public void PlaySound(AudioClip sound) {
         audioSource.clip = sound;
         audioSource.Play();
+    }
+
+    public void GoToChromoGame() {
+        SceneManager.LoadScene("ChromosomasMiniGame");
     }
 
     private void Start()

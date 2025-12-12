@@ -6,6 +6,6 @@ using UnityEngine.SceneManagement;
 public class MainScripts : MonoBehaviour
 {
     public void ToStory1() {
-        SceneManager.LoadScene("Story1");
+        SceneManager.LoadScene("Episode1");
     }
-} 
+}
